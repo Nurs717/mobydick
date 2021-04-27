@@ -21,7 +21,7 @@ func main() {
 	}
 	words := bytes.FieldsFunc(data, f)
 	test = append(test, words[0])
-	test = loop(append(test, loop(words, test[0+counter])))
+	test = append(test, loop(words, test[0+counter]))
 
 	// LOOP:
 	// for {
