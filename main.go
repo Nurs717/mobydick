@@ -29,7 +29,7 @@ func main() {
 
 	counter.count(words)
 	counter.sort()
-	print(counter.values[:20], counter.keys[:20])
+	counter.print()
 }
 
 func (c *Counter) count(words [][]byte) {
@@ -77,10 +77,10 @@ type Writer interface {
 	Write(p []byte) /*(n int, err error)*/
 }
 
-func print(words [][]byte, keys []int) {
-	for i, word := range words {
+func (c *Counter) print() {
+	for i, word := range c.values[:20] {
 		word = bytes.ToLower(word)
-		fmt.Printf("%d ", keys[i])
+		fmt.Printf("%d ", c.keys[i])
 		f := os.Stdout
 		f.Write(word)
 		fmt.Println()
