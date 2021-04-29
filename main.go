@@ -33,6 +33,7 @@ func main() {
 	counter.uniq(words)
 	counter.sort()
 	counter.print()
+
 }
 
 //creats uniq words and creats counts of them

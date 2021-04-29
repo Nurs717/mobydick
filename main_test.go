@@ -5,12 +5,6 @@ import (
 	"testing"
 )
 
-type Check struct {
-	words        [][]byte
-	resultvalues [][]byte
-	resultkeys   []int
-}
-
 func TestExist(t *testing.T) {
 	cases := []struct {
 		target [][]byte
@@ -31,86 +25,87 @@ func TestExist(t *testing.T) {
 }
 
 func TestUniq(t *testing.T) {
-	var testCounter Counter
-
-	check := []Check{
+	cases := []struct {
+		counter      Counter
+		words        [][]byte
+		resultValues [][]byte
+		resultKeys   []int
+	}{
 		{words: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
-			resultvalues: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
-			resultkeys:   []int{1, 1, 1},
+			resultValues: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
+			resultKeys:   []int{1, 1, 1},
 		},
 
 		{words: [][]byte{[]byte("menin"), []byte("atym"), []byte("menin"), []byte("menin"), []byte("Qoja"), []byte("Qoja"), []byte("atym"), []byte("menin"), []byte("Qoja")},
-			resultvalues: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
-			resultkeys:   []int{4, 2, 3},
+			resultValues: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
+			resultKeys:   []int{4, 2, 3},
 		},
 
 		{words: [][]byte{[]byte("menin")},
-			resultvalues: [][]byte{[]byte("menin")},
-			resultkeys:   []int{1},
+			resultValues: [][]byte{[]byte("menin")},
+			resultKeys:   []int{1},
 		},
 	}
 
-	for _, test := range check {
+	for _, test := range cases {
 
-		testCounter.uniq(test.words)
+		test.counter.uniq(test.words)
 
-		testCounter.equalMatrix(&test, t)
-		testCounter.equalInt(&test, t)
-
-		testCounter.values = [][]byte{}
-		testCounter.keys = []int{}
+		equalMatrix(test.counter.values, test.resultValues)
+		equalInt(test.counter.keys, test.resultKeys)
 
 	}
 }
 
 func TestSort(t *testing.T) {
-	testCounter := []Counter{
+	cases := []struct {
+		counter      Counter
+		resultValues [][]byte
+		resultKeys   []int
+	}{
 		{
-			values: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
-			keys:   []int{4, 2, 3},
-		},
-		{
-			values: [][]byte{[]byte("menin")},
-			keys:   []int{4},
-		},
-	}
-
-	check := []Check{
-		{
-			resultvalues: [][]byte{[]byte("menin"), []byte("Qoja"), []byte("atym")},
-			resultkeys:   []int{4, 3, 2},
-		},
-		{
-			resultvalues: [][]byte{[]byte("menin")},
-			resultkeys:   []int{4},
+			counter: Counter{
+				values: [][]byte{[]byte("menin"), []byte("atym"), []byte("Qoja")},
+				keys:   []int{4, 2, 3},
+			},
+			resultValues: [][]byte{[]byte("menin"), []byte("Qoja"), []byte("atym")},
+			resultKeys:   []int{4, 3, 2},
 		},
 	}
 
-	for i, test := range check {
-		testCounter[i].sort()
+	for _, test := range cases {
+		test.counter.sort()
+		if !equalInt(test.resultKeys, test.counter.keys) {
+			t.Errorf("expect for %v but got %v", test.resultKeys, test.counter.keys)
+		}
 
-		testCounter[i].equalMatrix(&test, t)
-		testCounter[i].equalInt(&test, t)
-
-	}
-}
-
-func (c *Counter) equalMatrix(b *Check, t *testing.T) {
-	for i, word := range c.values {
-		if !bytes.EqualFold(word, b.resultvalues[i]) {
-			t.Errorf("expect for %v but got %v", string(b.resultvalues[i]), string(word))
-			break
+		if !equalMatrix(test.resultValues, test.counter.values) {
+			t.Errorf("expect for %v but got %v", test.resultValues, test.counter.values)
 		}
 	}
 
 }
 
-func (c *Counter) equalInt(b *Check, t *testing.T) {
-	for i, num := range c.keys {
-		if num != b.resultkeys[i] {
-			t.Errorf("expect for %d but got %d", b.resultkeys[i], num)
-			break
+func equalInt(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, num := range a {
+		if num != b[i] {
+			return false
 		}
 	}
+	return true
+}
 
+func equalMatrix(a, b [][]byte) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, num := range a {
+		if !bytes.EqualFold(num, b[i]) {
+			return false
+		}
+	}
+	return true
 }
