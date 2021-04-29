@@ -9,30 +9,34 @@ import (
 	"unicode"
 )
 
-// Counter .
+// Counter struct
 type Counter struct {
 	values [][]byte
 	keys   []int
 }
 
 func main() {
+	//reading text file
 	data, err := ioutil.ReadFile("mobydick.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	//Trim if its not letter and divide there
+	//to create matrix of bytes
 	f := func(c rune) bool {
 		return !unicode.IsLetter(c)
 	}
-	var counter Counter
 	words := bytes.FieldsFunc(data, f)
+	//declaring Struct
+	var counter Counter
 
-	counter.count(words)
+	counter.uniq(words)
 	counter.sort()
 	counter.print()
 }
 
-func (c *Counter) count(words [][]byte) {
+//creats uniq words and creats counts of them
+func (c *Counter) uniq(words [][]byte) {
 	for _, word := range words {
 		n := exist(word, c.values)
 		if n == -1 {
@@ -44,6 +48,8 @@ func (c *Counter) count(words [][]byte) {
 	}
 }
 
+//checking word for existens, if not exist returnig flag,
+//if yes returning index of the word
 func exist(source []byte, target [][]byte) int {
 	for i, word := range target {
 		if bytes.EqualFold(word, source) {
@@ -53,6 +59,7 @@ func exist(source []byte, target [][]byte) int {
 	return -1
 }
 
+//sorting keys and by them sorting values
 func (c *Counter) sort() {
 	for {
 		isChanged := false
@@ -71,18 +78,16 @@ func (c *Counter) sort() {
 			break
 		}
 	}
+
 }
 
-type Writer interface {
-	Write(p []byte) /*(n int, err error)*/
-}
-
+//printing by Stdout Writer
+//and before print converting letter to lower case
 func (c *Counter) print() {
 	for i, word := range c.values[:20] {
 		word = bytes.ToLower(word)
 		fmt.Printf("%d ", c.keys[i])
-		f := os.Stdout
-		f.Write(word)
+		os.Stdout.Write(word)
 		fmt.Println()
 	}
 }
