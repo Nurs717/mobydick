@@ -1,3 +1,3 @@
-module github.com/syntaqx/dacode
+module mobydick
 
 go 1.16
